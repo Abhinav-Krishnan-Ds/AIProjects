@@ -1,0 +1,95 @@
+Computer vision project's outcome
+-> Plant pathology detection
+    Class imbalance problems
+    Fine grained object detection
+    Image classification
+
+
+NLP project's outcome
+-> 
+
+
+Link for each pretrained model
+-> https://huggingface.co/models?pipeline_tag=text-to-3d&sort=trending
+   (Web site containing all the pretrained models for each category)
+
+
+Multi model
+-------------------------------
+-> Image + Text to text(VLLM's)
+-> Visual question answering
+-> Document question answering
+
+
+Computer Vision
+-------------------------------
+-> Depth estimation
+-> Image classification
+-> Object detection
+-> Image segmentation
+-> Text to image
+-> Image to text
+-> Image to Image
+-> Image to video
+-> Unconditional Image generation
+-> Video classification
+-> Text to video
+-> Zero shot image classification
+-> Zero shot object detection
+-> Mask generation
+-> Text to 3D
+-> Image to 3D
+-> Image feature extraction
+
+
+Natural language processing
+-------------------------------
+-> Text classification
+-> Token classification
+-> Table question answering
+-> Question answering
+-> Zero shot classification
+-> Translation
+-> Summarization
+-> Feature extraction
+-> Text generation
+-> Text2Text generation
+-> Fill mask
+-> Sentance similarity
+
+
+Audio
+-------------------------------
+-> Text to speech
+-> Text to audio
+-> Automatic speech recognition
+-> Audio to Audio
+-> Audio classification
+-> Voice activity detection
+
+
+
+Tabular
+-------------------------------
+-> Tabular classification
+-> Tabular regression
+
+
+Reinforcement Learning
+-------------------------------
+-> Reinforcement Learning
+-> Robotics
+
+
+Other
+-------------------------------
+-> Graph machine learning
+
+
+Names of popular models
+-------------------------------
+Linear models, Naive Bayes classifier, Decision trees, ensembles of decision trees, kernalized support vector machines, Non negative matrix factorization, manifold learning with tsne, agglomerative clustering, DBSCAN, Random Forests, KNN, PCA, Stochastic gradient descent, CNN, RNN, LSTM, one hot encoding, Binning, discretization, Linear models and trees, interactions and polynomials, univariate non linear transformation, automatic feature selection(univariate statistics, model based feature selection, iterative feature selection), cross validation, kfold cross validation, grid search, grid search with cross validation, metrics for binary classification, metrics for multiclass classification, regression metrics, using evaluation metrics in model selection, tf-idf, ROC curve, rescaling, tokenization, stemming, lemmatization, Latent dirichlet allocation
+
+NLP Large models (GPT 4, BERT, ELMO, RoBERTa, T5, ALBERT, XLNet, MobileBERT, CTRL, GShard, Flair)
+CV Large models (SIFT, SURF, Viola Jones, Eigen faces using PCA, Lucas Kanade, Kalman filter, Mean shift,
+                  Adaptive thresholding, Graph cut, YOLO)

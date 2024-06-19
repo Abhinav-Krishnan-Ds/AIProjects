@@ -1,0 +1,115 @@
+from keras.preprocessing import sequence, text
+=======================================================================================================================
+
+
+Things to cover
+-> https://www.d2l.ai/chapter_recurrent-neural-networks/rnn.html
+-> what is %%time
+-> what is with strategy.scope()
+-> 
+
+
+
+
+
+
+
+
+
+Fields of NLP:
+-> Sentiment analysis
+-> Topic extraction
+-> Search engine
+-> Entity extraction
+-> Auto complete
+-> Chatbots / VA's
+-> Speech to text
+-> Review rating prediction
+-> Question answering
+-> Translation
+
+
+Pre processing text data:
+-> Removing weird spaces    :(split the text to words, add " " space to them by join command)
+-> Tokenization             :(imp step:                         simple method-nltk word_tokenize function)
+-> Spelling correction      :(imp imp step:                     simple method- Peter Norvig's spelling correction)
+-> Contraction mapping      :(cause  -  because)
+-> Stemming                 :(converts word to root form, ex: fishing to fish, simple method- NLTK stemmers)
+-> Emoji handling           :(install emoji library)
+-> Stop words handling      :(Find the stop words)
+-> Cleaning HTML            :(Format code)
+
+
+Models to be used:
+-> SVM
+-> Logistic Regression
+-> Gradient Boost
+-> Neural Network
+
+
+Fuzzy features are used in:
+-> Spelling check
+-> Plagariasm detection
+-> DNA Sequence matching
+-> Spam filtering
+
+-> Lavenshtein distance or edit distance:Number of primitive operations to convert a string to exact match
+
+-> Above method uses : QRatio, WRatio, TokenSet Ratio, TokenSort Ratio, PartialSet Ratio, PartialSort Ratio, as 
+   new features along with original data
+   
+
+-> Hashing of words, word embeddings, TF-IDF plus SVD(Singular Value Decomposition)
+
+
+Word embeddings features
+------------------------
+
+1) Spacial distances:
+-> Euclidian
+-> Manhattan
+-> Cosine
+-> Canberra
+-> Minkowski
+-> Braycurtis
+
+2) Stastical features:
+-> Skew
+-> Kurtosis
+
+
+-> Word mover's distance : WMD
+
+
+ROC curve and AUC score
+-> Graph used a metric for binary classification models
+-> Reciever's Operating Charecteristics curve is a graph of True Positive rate against False Positive rate
+   (TPR against FPR)
+-> AUC: Area Under Curve
+-> AUC score: If 1, indicates the model can perfectly separate the positive and negative class irrespective of
+   Threshold
+
+
+Applications of RNN
+-> Next Word prediction
+-> Image captioning
+-> Music composition
+-> Time series anomaly detection
+-> Stock market prediction
+-> Speech recognition
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

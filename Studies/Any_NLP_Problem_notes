@@ -1,0 +1,137 @@
+from sklearn import preprocessing
+
+preprocessing.LabelEncoder
+
+from sklearn.model_selection import train_test_split
+
+model.predict_proba(xvalid)
+
+from sklearn.linear_model import LogisticRegression
+
+from sklearn.naive_bayes import MultinomialNB
+
+from sklearn import decomposition
+
+from sklearn.svm import SVC
+
+
+NCE: Noise Contrastive Estimation
+ReLu: Rectified Linear Unit
+NER: Named Entity Recognition
+CNN: Convolutional Neural Network
+RNN: Recurrent Neural Network
+RSS value: Residual Sum of Squares
+RSE value: Residual Standard Error
+RMSE value: Root Mean Square Error
+TextFuseNet
+LSA
+PLSA
+CTM
+MSE
+MAE
+=========================================================================================================================
+
+
+
+
+
+Things to be covered:
+-> Working of Latent Dirichlet Allocation, Non Negative Matrix Factorization, LabelEncoder
+-> Stratify splitting
+-> TF-IDF, Logistic regression
+-> Parameters of TF-IDF, how to tune to get best settings for TF-IDF
+-> What is TF-IDF followed by logistic regression means
+-> What are linear models and non linear models
+-> what is parameter C in logistic Regresion
+-> Which model is better for which cases
+-> Uses and strength areas of each model
+-> How to choose combinations of models
+-> What is Singular Value Decomposition
+-> Things to consider while passing data to SVM
+-> What is XGBOOST
+-> Learn parameters of all models and how to implement in tensorflow
+-> Why is the training time of SVM model takes so long
+-> Full form of SVD
+-> What is fasttext(GloVe, word2vec)
+-> You can download the GloVe vectors from here http://www-nlp.stanford.edu/data/glove.840B.300d.zip
+
+
+Things to consider to build a good pipeline
+-> Data type consistancy, make sure you are dealing with same datatype
+-> After reading a file and updating to dataset(refer ch3 word to vec skip gram alg, def builddataset(words) to reduce    memory usage
+-> Loss alone is not a good metric of accuracy as it might occur due to overfitting.
+   Word analogy test can be a good metric.
+   More about word analogy test :
+-> Visualisation of higher dim data to lower dim data can be done with the help of TensorBoard
+   tensorboard_word_embeddings.ipynb1
+-> CBOW works better in synctactic tasks and skip gram works better in semantic tasks.
+-> Skip gram algorithm works better than CBOW for larger dataset
+
+
+Links
+-> Google analogy dataset: http://download.
+   tensorflow.org/data/questions-words.txt
+-> Bigger Analogy Test Set (BATS): http://vsm.
+   blackbird.pw/bats
+
+
+-> Linear regression makes straight line decisions, and output varies from neg to pos infinity.
+   It uses Mean Squared Error (MSE) or Mean Absolute Error (MAE).
+-> Logistic regression makes classification predictions and output is probability of each class.
+
+
+-> tfidf, count features, logistic regression, svm, xgboost, naive bayes, grid search, word vectors, LSTM,
+   GRU, ensembling
+
+-> Always try to start with TF-IDF and CountVectorizer features, they work almost all the time.
+
+-> Hyperparameter optimization
+Grid Search
+
+
+Topic modelling
+----------------------------
+-> Represent a document as a collection of topics
+-> Remove words that are present in 80 - 90 percent of documents as data preprocessing.
+-> Other techniques: Latent Semantic Analysis, Probabilistic Latent Semantic Analysis, Correlated Topic Modelling
+
+Latent Dirichlet Allocation
+-> 2 parts: 1) Words that belong to document we know
+            2) Words that belong to a topic or probability of a word that belonging to a 
+               topic that we need to calculate
+-> 1) Distributional assumption: Similar topics have similar words
+   2) Statistical mixture assumption: A document may contain multiple topics
+-> Generation process: First it learns document-topic relations and then topic-words correlation
+-> Topic modelling is just the opposite, It assigns topics randomly to each word and then 
+   iteratively improves assignment by Gibbs Sampling
+-> Hyper parameters in LDA:
+        -> document topic density factor: alpha
+        -> topic word density factor    : beta
+        -> number of topics expected in corpus of document   : K
+   Lower value of alpha and lower value of beta is always prefered.
+-> 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

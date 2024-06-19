@@ -1,0 +1,902 @@
+Setting tensorflow GPU
+----------------------
+1) Download a GPU driver
+
+2) Download cuDNN library of version supported by GPU driver
+
+3) Download CUDA toolkit of version supported by cuDNN installed
+
+4) create a tools folder in drive c, and add CUDA files to it and add this path to system variables
+
+5) add paths : extras, cupti lib,
+               include
+               of the folders of CUDA toolkit
+               
+
+------------------------
+
+using gpu
+
+with tf.device("device name"):
+
+
+
+-> tf.config.set_soft_device_placement(True): Allows managing the devices: cpu and gpu for different operations.    
+   This can be costly since movement of data over devices consumes time.
+
+-> tf.debuggin.set_log_device_placement(True):
+   logs device placement(which operation is done on which device(CPU OR GPU)
+   works on 1) Eager op execution  2) Graph construction
+   not all logged ops are guaranteed to be executed at runtime due to Grappler(optimizer of tf.graphs)
+   it doesnt fully work on TPU's currently.
+    
+    
+-> Difference between eager execution and graph execution:
+
+  Feature                    Eager Execution                                  Graph Execution
+Execution Mode    Imperative (operations executed eagerly)    Declarative (operations executed within a graph)
+Control Flow      Python control flow statements directly     Graph control flow constructs (e.g., tf.cond())
+Debugging         Easier debugging                            Debugging can be more complex with session graphs
+Optimization      Limited optimization opportunities          Allows for optimizations like constant folding, etc.
+Deployment        Generally not used for deployment           Suitable for deployment as saved computational graph
+Default Mode      TensorFlow 2.x default mode                 Supported but not the default in TensorFlow 2.x
+    
+    
+-> Training API's 
+
+Training API                        Advantages                                Disadvantages
+
+Low-Level TensorFlow 
+                 Maximum flexibility and control                    Requires writing more boilerplate code
+                 Direct access to core TensorFlow functionalities   Steeper learning curve
+                 Suitable for implementing custom algorithms/models Less user-friendly compared to higher-level APIs
+Keras API        
+                 Simple and intuitive interface                     Less flexibility compared to low-level TensorFlow
+                 Abstracts away many implementation details         May not support certain advanced features
+                 Wide range of pre-built components                 May not be as efficient for building complex model
+Estimator API
+                 High-level interface for training/deployment       Less flexibility compared to low-level TensorFlow
+                 Supports distributed training                      Limited support for certain advanced features
+                 Pre-made Estimators for common model types         May be less user-friendly for rapid prototyping
+tf.data API 
+                 Simple and efficient data input/preprocessing      Not specifically a training API
+                 High performance and scalability                   Requires additional code for complex pipelines
+                 Seamless integration with other TensorFlow APIs    Learning curve for developers not familiar with API
+Custom Training Loops
+                 Maximum flexibility and control                    Requires extensive manual coding
+                 Enables implementation of advanced techniques      Steeper learning curve
+                 Suitable for research or specialized use cases     May be less efficient or scalable for certain tasks
+    
+    
+    
+    
+Strategies in tensorflow:
+Each strategy has its own ways to train a model and update its parameters and weights.
+
+1) MirroredStrategy (-0):
+        is a distributed training strategy in TensorFlow that is primarily used for synchronous data parallelism. It's         a part of the tf.distribute.Strategy API, which allows you to distribute training across multiple GPUs on a             single machine. Mirrored Strategy works by replicating the model's variables (i.e., weights and biases) across         all available GPUs and ensuring that each GPU processes a portion of the input data. After each batch of data           is processed, the gradients are calculated independently on each GPU and then averaged across all GPUs. These           average gradients are then used to update the model's variables synchronously.
+    
+2) TPU Strategy(-1):
+         is a distributed training strategy specifically designed for training machine learning models on Google Cloud          TPUs (Tensor Processing Units). TPUs are custom-developed ASICs (application-specific integrated circuits)              designed by Google for accelerating machine learning workloads.
+         TPUStrategy allows you to efficiently utilize TPUs for training your models in a distributed manner. It works          similarly to other distributed training strategies in TensorFlow, such as MirroredStrategy, but is optimized            to take advantage of the unique architecture and capabilities of TPUs.
+    
+3) MultiWorkerMirroredStrategy(-2):
+         is a distributed training strategy that allows you to train machine learning models across multiple devices or          machines in a synchronous data-parallel manner. It is primarily used for distributed training across multiple          workers, where each worker has one or more GPUs.
+    
+    
+4) Central Storage strategy(-3):
+         All variables and values will be stored in CPU and all operations will be performed in GPU's.
+
+5) Parameter Server strategy(-4):
+          is commonly used in distributed training scenarios where the model size exceeds the memory capacity of                 individual devices or when training requires fine-grained control over parameter updates. It provides                   scalability and flexibility for training large-scale machine learning models across distributed environments.
+    
+
+
+supported        :s
+experimental     :e
+limited support  :l
+not supported    :n
+
+Training API      (-0)      (-1)     (-2)    (-3)    (-4)
+    
+Keras model.fit    s          s       s        e       e
+
+custom training    s          s       s        e       e
+loop
+    
+Estimator API      l          n       l        l       l
+    
+
+
+-> Optimization of single gpu is given in : tensorflow.org/guide/gpu_performance_analysis
+
+-> Initially a very little GPU resource is allocated.
+   As the need increases, GPU resource is allocated more to tensorflow process.
+   Memory is not released as it would couse fragmentation.
+   This is performed by seting memory growth by
+       tf.config.experimental.set_memory_growth(gpu, True)
+       where 'gpu' is name of the device: /device:GPU:0
+
+-> We can set the limit of amount of gpu resource to be used by
+       tf.config.set_logical_device_configuration(
+                                                   gpus[0],
+                                                   [tf.config.LogicalDeviceConfiguration(memory_limit=1024)]
+                                                  )
+
+
+
+-> tf.distribut.get_strategy()   will return the current strategy.
+
+
+-> with strategy.scope():
+        ----
+        ----
+        ----
+   
+   // the variables declared inside this scope will be done according to the strategy for distribution defined earlier.
+
+What should be in scope and what should be outside?
+
+There are a number of requirements on what needs to happen inside the scope. However, in places where we have information about which strategy is in use, we often enter the scope for the user, so they don't have to do it explicitly (i.e. calling those either inside or outside the scope is OK).
+
+Anything that creates variables that should be distributed variables must be called in a strategy.scope. This can be accomplished either by directly calling the variable creating function within the scope context, or by relying on another API like strategy.run or keras.Model.fit to automatically enter it for you. Any variable that is created outside scope will not be distributed and may have performance implications. Some common objects that create variables in TF are Models, Optimizers, Metrics. Such objects should always be initialized in the scope, and any functions that may lazily create variables (e.g., Model.call(), tracing a tf.function, etc.) should similarly be called within scope. Another source of variable creation can be a checkpoint restore - when variables are created lazily. Note that any variable created inside a strategy captures the strategy information. So reading and writing to these variables outside the strategy.scope can also work seamlessly, without the user having to enter the scope.
+
+Some strategy APIs (such as strategy.run and strategy.reduce) which require to be in a strategy's scope, enter the scope automatically, which means when using those APIs you don't need to explicitly enter the scope yourself.
+When a tf.keras.Model is created inside a strategy.scope, the Model object captures the scope information. When high level training framework methods such as model.compile, model.fit, etc. are then called, the captured scope will be automatically entered, and the associated strategy will be used to distribute the training etc. See a detailed example in distributed keras tutorial. WARNING: Simply calling model(..) does not automatically enter the captured scope -- only high level training framework APIs support this behavior: model.compile, model.fit, model.evaluate, model.predict and model.save can all be called inside or outside the scope.
+The following can be either inside or outside the scope:
+Creating the input datasets
+Defining tf.functions that represent your training step
+Saving APIs such as tf.saved_model.save. Loading creates variables, so that should go inside the scope if you want to train the model in a distributed way.
+Checkpoint saving. As mentioned above - checkpoint.restore may sometimes need to be inside scope if it creates variables.
+
+
+
+
+-> Class structure used for different cases in keras:
+
+
+1) Model class:
+
+from keras.models import Model
+from keras.layers import Dense, Input
+
+class MyModel(Model):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.dense1 = Dense(64, activation='relu')
+        self.dense2 = Dense(10, activation='softmax')
+
+    def call(self, inputs):
+        x = self.dense1(inputs)
+        return self.dense2(x)
+
+# Usage:
+model = MyModel()
+
+
+
+2) Layer classes
+
+from keras.layers import Dense, Dropout, Conv2D, MaxPooling2D
+
+class MyModel(Model):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.conv1 = Conv2D(32, (3, 3), activation='relu')
+        self.pooling = MaxPooling2D(pool_size=(2, 2))
+        self.flatten = Flatten()
+        self.dense = Dense(10, activation='softmax')
+
+    def call(self, inputs):
+        x = self.conv1(inputs)
+        x = self.pooling(x)
+        x = self.flatten(x)
+        return self.dense(x)
+
+
+
+3) Custom layers
+
+from keras.layers import Layer
+
+class MyCustomLayer(Layer):
+    def __init__(self, output_dim, **kwargs):
+        self.output_dim = output_dim
+        super(MyCustomLayer, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        self.kernel = self.add_weight(name='kernel', 
+                                      shape=(input_shape[1], self.output_dim),
+                                      initializer='uniform',
+                                      trainable=True)
+        super(MyCustomLayer, self).build(input_shape)
+
+    def call(self, inputs):
+        return K.dot(inputs, self.kernel)
+
+    def compute_output_shape(self, input_shape):
+        return (input_shape[0], self.output_dim)
+
+
+
+4) Callbacks
+
+from keras.callbacks import Callback
+
+class CustomCallback(Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        print("End of epoch:", epoch)
+
+# Usage:
+model.fit(x_train, y_train, epochs=10, callbacks=[CustomCallback()])
+
+
+
+
+Random and Seed (Basics)
+------------------------
+
+1)Program
+
+print(tf.random.uniform([1]))  # generates 'A1'
+print(tf.random.uniform([1]))  # generates 'A2'
+
+print(tf.random.uniform([1]))  # generates 'A3'
+print(tf.random.uniform([1]))  # generates 'A4'
+
+---
+
+tf.Tensor([0.59750986], shape=(1,), dtype=float32)
+tf.Tensor([0.9099175], shape=(1,), dtype=float32)
+tf.Tensor([0.00412071], shape=(1,), dtype=float32)
+tf.Tensor([0.3780992], shape=(1,), dtype=float32)
+
+
+
+2)Program
+
+tf.random.set_seed(1234)
+print(tf.random.uniform([1]))  # generates 'A1'
+print(tf.random.uniform([1]))  # generates 'A2'
+
+output
+---
+
+tf.Tensor([0.5380393], shape=(1,), dtype=float32)
+tf.Tensor([0.3253647], shape=(1,), dtype=float32)
+
+
+-----------------------
+-----------------------
+
+tf.random.set_seed(1234)
+print(tf.random.uniform([1]))  # generates 'A1'
+print(tf.random.uniform([1]))  # generates 'A2'
+
+output
+---
+
+tf.Tensor([0.5380393], shape=(1,), dtype=float32)
+tf.Tensor([0.3253647], shape=(1,), dtype=float32)
+
+
+------------------------
+------------------------
+
+tf.random.set_seed(1235)
+print(tf.random.uniform([1]))  # generates 'A3'
+print(tf.random.uniform([1]))  # generates 'A4'
+
+
+output
+---
+
+tf.Tensor([0.5310235], shape=(1,), dtype=float32)
+tf.Tensor([0.8249339], shape=(1,), dtype=float32)
+
+
+
+
+3)Program
+
+
+tf.random.set_seed(1234)
+
+@tf.function
+def f():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+
+@tf.function
+def g():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+print(f())  # prints '(A1, A2)'
+print(g())  # prints '(A1, A2)'
+
+
+output
+---
+
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.13047123], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.13047123], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+
+--------------------------
+--------------------------
+
+tf.random.set_seed(14)
+@tf.function
+def j():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+    
+@tf.function
+def k():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+def l():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+print(j())  # print '(A3, A4)'
+print(k())  # print '(A3, A4)'
+print(l())  # print '(A5, A6)'   because @tf.function is not given on top of it.
+
+
+output
+---
+
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.2974385], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1901201], dtype=float32)>)
+
+
+
+4)Program
+
+
+tf.random.set_seed(1234)
+@tf.function
+def foo():
+    a = tf.random.uniform([1], seed=1)
+    b = tf.random.uniform([1], seed=1)
+    return a, b
+print(foo())        # prints '(A1, A1)'
+print(foo(), "\n")  # prints '(A2, A2)'
+
+
+
+@tf.function
+def bar():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+def bar2():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+print(bar())              # prints '(A1, A2)'
+print(bar2(), "\n")       # prints '(A3, A4)'
+
+
+
+@tf.function
+def bar3():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+@tf.function
+def bar4():
+    a = tf.random.uniform([1])
+    b = tf.random.uniform([1])
+    return a, b
+
+print(bar3())    # print '(A1, A2)'
+print(bar3())    # print '(A5, A6)'
+print(bar4())    # print '(A1, A2)'
+print(bar4())    # print '(A5, A6)'
+
+
+
+output
+---
+
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.7539084], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.7539084], dtype=float32)>) 
+
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.13047123], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.5380393], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.3253647], dtype=float32)>) 
+
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.13047123], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.6087816], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.7539084], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.13047123], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.1689806], dtype=float32)>)
+(<tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.6087816], dtype=float32)>, <tf.Tensor: shape=(1,), dtype=float32, numpy=array([0.7539084], dtype=float32)>)
+
+
+
+
+--------------------------------------------------
+--------------------------------------------------
+
+
+
+
+
+
+
+-> In tensorflow, we can have a control over
+
+-Number of threads to be used for operations that can run independantly of each other.
+    tf.config.threading.set_inter_op_parallelism_threads(1)
+ Function to get the number of parallel threads being used:
+    tf.config.threading.get_inter_op_parallelism_threads()
+    
+-Number of threads to be used for intra_op for parallelism within individual operation.
+    tf.config.threading.set_intra_op_parallelism_threads(1)
+ Function to get 
+    tf.config.threading.get_intra_op_parallelism_threads()
+
+-Device placement
+
+All these can affect the speed of functioning.
+
+
+
+
+-> Method of seeding everything for any model, this might make your model slower, but it can reproduce same results
+   everytime its called for the same inputs provided.
+   
+   def set_seeds(seed=SEED):
+       os.environ['PYTHONHASHSEED'] = str(seed)
+       random.seed(seed)
+       tf.random.set_seed(seed)
+       np.random.seed(seed)
+       
+   
+   def set_global_determinism(seed=SEED):
+       set_seeds(seed=seed)
+
+       os.environ['TF_DETERMINISTIC_OPS'] = '1'
+       os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
+       os.environ['TF_KERAS'] = '1'
+       
+       tf.config.threading.set_inter_op_parallelism_threads(1)
+       tf.config.threading.set_intra_op_parallelism_threads(1)
+
+   # Call the above function with seed value
+   set_global_determinism(seed=SEED)
+
+
+
+
+NCE: Noise Contrastive Estimation
+
+
+
+
+
+1) always try to scale the data
+2) check for spelling errors in user input
+3) make sure that training set and test set have the same columns or both are in same shape
+
+
+
+
+1) Data type consistancy, make sure you are dealing with same datatype
+2) After reading a file and updating to dataset(refer ch3 word to vec skip gram alg, def builddataset(words) to reduce memory usage
+3) Loss alone is not a good metric of accuracy as it might occur due to overfitting.
+Word analogy test can be a good metric.
+More about word analogy test :
+
+Google analogy dataset: http://download.
+tensorflow.org/data/questions-words.txt
+
+Bigger Analogy Test Set (BATS): http://vsm.
+blackbird.pw/bats
+4) Visualisation of higher dim data to lower dim data can be done with the help of TensorBoard
+tensorboard_word_embeddings.ipynb1
+5) CBOW works better in synctactic tasks and skip gram works better in semantic tasks.
+6) Skip gram algorithm works better than CBOW for larger dataset
+
+
+
+
+
+
+
+
+Handling outliers
+-------------------------------------------
+First question to ask yourself:
+Are outliers and Noise the same?
+
+Outliers: An Outlier is that observation which is significantly different from all other observations.
+Anomalies: A false data point made by different processes than the rest of the data
+
+Outliers are sometimes helpful
+
+Deletion of outliers is not always healthy unless and until you analyze the data
+
+Outliers affect : mean, standard deviation, range
+Outliers doesnt affect : Median, IQR
+
+Drop an outlier if:
+1) If you are sure its wrong
+2) You have a lot of data in hand
+3) You have an option to go back
+
+Dont drop an outlier if:
+1) Your results are critical
+2) You have a lot of outliers (around 25 percent or so)
+
+Outlier detection: A data point significantly off the average and, depending on the goal, either removing or resolving them from the analysis to prevent skewing is known as outlier detection.
+
+Outliers are caused by:
+1) Intentional(dummy outliers are created to test detection models)
+2) Data processing errors(Data manipulation or data set unintended mutations)
+3) Sampling errors(extracting or mixing data from wrong or various sources)
+4) Natural(not an error but novelties the data)
+5) Data entry error(Human error)
+
+
+Different ways to treat an outlier
+
+1) Trimming
+- Fastest way
+- Makes the dataset thin if many outliers are present
+
+2) Capping
+- Consider all data points above a threshold value as outliers
+- Capping number: no of outliers hence found
+
+3) Considering them as missing values
+
+4) Discretization
+- Making groups. Considering all outliers in a separate group and forcing them to behave the way other groups do
+
+
+Detecting outliers
+
+1) Normal distributions
+- Here use empirical normal distribution formulas, ex: mean+or-3*stddeviation beyond which all are outliers
+
+2) Skewed distributions
+- Use Inter - Quartile Range(IQR) approximity rule
+
+Important methods to detect outliers are:
+1) Z-score
+2) IQR
+3) DBSCAN : Density Based Spatial Clustering Application with Noise
+- Mahalanobis distance method(for multivariate outliers), Box and whishker or box plot - B Tukeys method
+4) LOF    : Local Outlier Factor
+5) one-class SVM
+6) PyCaret
+7) PyOD
+8) Prophet
+9) 
+
+-SciPy and Numpy are used to visualize
+
+
+
+mean = sum(values) / len(values)
+differences = [(value - mean)**2 for value in values]
+sum_of_differences = sum(differences)
+standard_deviation = (sum_of_differences / (len(values) - 1)) ** 0.5
+
+print(standard_deviation)
+
+
+------------------------------------------------------------------
+
+
+------------------------------------------------------------------
+
+
+
+Data preprocessing notes
+
+
+
+Data quality : accuracy, completeness, consistancy, believability, interpretable, timeliness
+
+disguised missing data : people fill fake data in mandatory fields
+
+factors that affect:
+accuracy - people, data transmission, faulty data collection instruments, technological
+
+Data cleaning: Filling missing values, smoothening noisy values, removing outliers, removing inconsistancies
+
+Data integration
+
+Data tranformation
+
+Data reduction: dimensionality reduction(wavelet transforms, PCA, attribute subset selection, attribute construction),
+                numerosity reduction(data are replace by parametric models(regression or log linear models) or
+                                                     non parametric models(histograms, clusters, sampling, or data
+                                                                             aggregation)
+                                    )
+                
+Data cleaning
+-------------
+Missing values:
+***(ask this question, is this value missing because it was not recorded or because it doesnt exist?)
+
+parameters for 'fillna' function in pandas for filling in missing values :
+{‘backfill’, ‘bfill’, ‘ffill’, None}, default None
+
+1) Ignore the tuple(loss of other attribute data)
+2) Manual data entry(time consuming for large dataset)
+3) Use a global constant to fill the missing places(not foolproof, cause the model would think its some special
+                                 value and derive some other conclusions)
+4) Use of central tendency(mean : symmetric data, median : skewed data distribution)
+5) Prediction of missing values in same class: if the model is for classification task, take mean or median for each                                    class and use this value to fill missing places of corresponding class tuples
+6) Fill in the most probable value: Find it by using regression, Bayesian formalism, Decision tree to find most
+                                 probable value
+
+
+handling outliers:
+1) Visualise outliers
+2) Identify which rows of dataframe has outliers
+3) Implement various strategies to handle outliers
+
+Outlier: a data point three or more times standard deviation from the mean
+Z-score : number of standard deviation a data point is from the mean
+Higher the Z-score, the data point is farther from the mean
+
+
+Noisy data:
+They are some random error or variance in measured variable
+they can be found out by boxplots and scatter plots
+some smoothening techniqes are also data discretization(data transformation) or data reduction
+1) Binning(By bin meadians or boundaries in sorted data values)
+2) Regression
+
+
+
+How to perform data cleaning as a process
+1) Discrepency detection: 
+        Causes: poor data entry forms, human errors, deliberate errors, instrument errors, data integration
+   Study about meta data
+   
+   Data scrubbing tools
+   Data auditing tools
+   Data migration tools
+   ETL(Extraction, Tranforming, Loading)
+   Potter's wheel
+
+
+
+
+Data Integration
+
+Correlation coefficient for numeric data (chi square test)
+Covariance analysis of numeric data      (chi square test)
+
+
+
+
+Data reduction
+
+Attribute subset selection
+Attribute creation
+Discrete Wavelet Transform(DWT)
+Principal Component Analysis(PCA)
+
+Sampling (most commonly used)
+Histogram
+Data Cube Aggregation
+
+
+
+
+
+Data transformation
+
+Smoothing(to remove noise data):
+Binning, Regression, Clustering
+
+Attribute construction:
+
+
+Aggregation:
+
+
+Normalization:Always standardize or normalize the data.
+Especially useful in classification problems
+Types:
+min-max normalization, z-score normalization(performed when min and max are not known) mean absolute deviation is more robust to outliers than standard deviation and while using this method save the mean and standard deviation so that future data can also be standardized uniformly, normalization by decimal scaling
+
+
+Discretization: Entropy is the most commonly used measure
+Categorizing the values
+supervised discretization, unsupervised discretization, split points, cut points, top-down discretization or splitting,
+bottom-up discretization or merging
+ChiMerge technique
+
+
+Concept hierarchy generation for nominal data
+
+
+
+
+------------------------------------------------------------------------------
+
+
+
+------------------------------------------------------------------------------
+
+
+
+Exploratory data analysis
+
+
+def: discover patterns, spot anomalies, test hypothesis, check assumptions
+
+
+steps:
+
+1) Read the data head columns and first 10 rows
+2) Understand the shape, columns and data types
+3) Identify attribute type
+4) Print index of all value counts of each column
+5) describe each column and find out whether each column in categorical or continuous
+6) print categorical count values of categorical attributes
+7) identify missing values
+8) convert all "." symbol to nan, None values to nan, missing values to nan
+9) convert all numerical features either to float or to int, note: it has to be uniform
+10) print mean, variance, std
+11) plot kdeplot from seaborn to find whether two columns are closely related or not
+12) If two columns have similar mean, variance, std, min, max etc then that may conclude that they are 
+    closely related.
+13) kurtosis method to measure peakedness of the data
+
+
+
+
+
+
+Kurtosis is a method used to find outliers in data
+
+platykurtic(thin tails, kurtosis value is close to 3)
+mesokurtic(medium tails, kurtosis value is less than 3)
+leptokurtic(fat tails, kurtosis value is greater than 3)
+
+If kurtosis value is extremely large, then that shows a possibility for outliers
+
+Finding 25, 50 and 75 quartile range
+
+Inter Quartile Range(IQR) is a measure of variability, it is the distance between the first
+and third quartile
+
+Correlation is the measure of strength and direction of relationship between a dependent and
+an independent feature
+
+Pearson correlation coefficient p(x, y) = covariance(x, y)/(std(x) * std(y))
+
+it varies from -1 to 1
+
+positive value: direct relationship
+negative value: Indirect relationship
+
+
+
+-----------------------------------------------------------------------------------
+
+
+
+-----------------------------------------------------------------------------------
+
+
+Time series notes
+
+
+Time series: Stationary and Non stationary
+
+Stationary: observations like mean and variance are consistant over time and do not depend on time
+
+Stationary process: A process that generates a stationary series of observations
+Stationary model  : A model that describes stationary series of observations
+Trend stationary  : A time series that doesnt exhibit a trend
+Season stationary : A time series that doesnt exhibit seasonality
+Strictly stationary
+
+Generally make your time series stationary
+Its easier for models to work with stationary time series
+Remove trend and seasonality from time series
+
+Its advised to treat properties of time series being stationary or not as another piece of information for feature engineering
+
+
+Methods to check for stationarity
+1) Look at plots: visually check for trends and seasonality
+2) Summary statistics: you can review the summary statistics for your data for seasons or random partitions and check for obvious or large differences
+3) Statistical tests
+
+Augmented Dicky Fuller test(Unit root test)
+It determines how strongly a time series is affected by trend
+It uses an autoregressive model and optimizes an information criterion over different lag values
+
+
+Making the time series stationary:
+->if there is a positive general trend, then use transformation like log, square root, cube root
+->Aggregation, taking average over time like monthly or yearly average
+->Smoothing: taking rolling means
+->Polynomial fitting: Fit a regression model
+
+Eliminating trend and seasonality:
+->Differencing: taking difference with a particular time lag
+->Decomposition: modeling both trend and seasonality and removing them from model
+
+
+
+ARIMA model
+parameters:
+p -> Number of auto regressive terms its dependent on
+q -> Number of moving average terms
+d -> Number of nonseasonal differences
+
+p, q are determined by two graphs: ACF and PACF
+
+ACF(Autocorrelation Function)
+Correlation of the TS with a lagged version of itself
+
+PACF(Partial Autocorrelation Function)
+
+
+p -> lag value where pacf plot first crosses the upper confidence level
+q -> lag value where acf plot first crosses the upper confidence level
+
+RSS value: Residual Sum of Squares
+RSE value: Residual Standard Error
+RMSE value: Root Mean Square Error
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
