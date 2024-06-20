@@ -1,0 +1,62 @@
+- Famous datasets for CNN model:
+    MNIST
+    CIFAR 10/100
+    ImageNet
+
+- CNN published paper (An introduction to convolutional neural networks)
+
+- Artificial Neural Network(ANN), Convolutional Neural Network(CNN)
+
+    Structure and connectivity: ANN's have a feedforward nn structure, CNN's have convolutional layer,
+        max pooling layer, dense or fully connected layer
+    Feature extraction and data handling: ANN's are used for 1D data(time series, tabular data etc),
+        CNN's apply for 2D data(Images)
+    Application: ANN's are used for regression tasks, classification tasks, time series prediction
+        CNN's are used for image recognition, object detection, image segmentation
+
+- Advantages of CNN: 
+    Automatic feature extraction(various levels of features)
+    Spatial feature extraction
+    Parameter sharing
+    Translational invariance
+- Disadvantages of CNN:
+    High computational cost
+    Difficult to debug due to complex structure
+    Design for only one specific task, cannot handle 1D data
+    Overfitting may still occur
+    Large amount of data is required
+
+- Methods to reduce overfitting in CNN:
+    Data augmentation(rotating, flipping, scaling the data)
+    Dropout layers(omiting a subset of features of a feature map to reduce dependency on any one particular feature)
+    Reducing model complexity(so that model doesnt memorize data)
+    Early stopping(stop training when performance starts to degrade)
+    L1, L2 regularisation
+    Increasing training data
+
+- Regularization is a method of preventing overfitting by bringing some factors of smoothness constraints
+    to the learned model
+
+- Early stopping:
+    Stop when test error increases even though training error still goes lower
+    Redces overfitting
+    Simple, takes less time, needs less training data
+
+    Optimal stopping depends on validation set choosing
+    Chances of underfitting exists
+    Not beneficial for all models
+
+- Models for which early stopping is not used are:
+    KNN, Decision trees, Random forests, SVM, Linear models(regression, classification), Naive Bayes
+
+- L1 and L2 Regularisation(Lasso and Ridge)
+    L1 : sparsity, feature selection, simpler model
+    L2 : cofficient not set to zero, but close to zero, produces stable results
+    Elastic net: Combines L1 and L2 regularization to produce feature selection and stable results
+
+- Softmax function converts an input vector into probability distribution for classification problems
+    Disadvantage is that it need large number of parameters. If we have large number of classes of 
+    data, it might lead to overfitting
+
+- Equiangular Basis Vector (EBV) is an alternative to Softmax function, it converts output of neural network
+    into unique vectors for each class and are orthogonal to each other.
