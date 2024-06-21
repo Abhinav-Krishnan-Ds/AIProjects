@@ -60,3 +60,5 @@
 
 - Equiangular Basis Vector (EBV) is an alternative to Softmax function, it converts output of neural network
     into unique vectors for each class and are orthogonal to each other.
+
+- Exponential Linear Units are an alternative for Relu, It solves dying Relu problem.
