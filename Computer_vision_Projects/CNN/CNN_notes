@@ -62,3 +62,8 @@
     into unique vectors for each class and are orthogonal to each other.
 
 - Exponential Linear Units are an alternative for Relu, It solves dying Relu problem.
+
+- Need to understand each CNN architecture in detail.
+
+- https://medium.com/@learnwithwhiteboard_digest/8-tips-on-how-to-choose-neural-network-architecture-e50590e99ab1
+- https://superb-ai.com/en/resources/blog/how-to-select-better-convnet-architectures-for-image-classification-tasks
