@@ -1,0 +1,24 @@
+) Import libraries
+2) we use opencv to perform selective search
+3) we need to download opencv-contrib-python: pip install opencv-contrib-python
+    opencv-python distribution wont work
+4) get_iou has to be defined
+
+
+Getting the data
+1) for each image in the dir, we need to get their bb values from another dir "labels"
+        we may use " readlink -f folder_name " to get the path of directory
+2) we need to perform selective search on each image from dir "images"
+        - setBaseImage(image)
+        - switchSelectiveSearchFast()
+        - ss.process()
+        - plot the image and its segments
+3) iou threshold is 0.7 above which the classification is positive "1"
+    append resized image of the corresponding image to train_images and label 1 to train_labels
+4) iou threshold is 0.3 below which the classification is negative "0"
+    append resized image of the corresponding image to train_images and label 0 to train_labels
+5) from the 2000 regions proposed, we just take 30 positive and 30 negative classes to train the model
+
+
+Transfer learning
+1)
