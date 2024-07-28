@@ -36,6 +36,8 @@ Algorithm to define a model:
 
         .samples
 
+        next(iter(train_generator))   # will give you to list, train_images and train_labels
+
     # 2
     initializing of tensorboard
         at the starting of code:
