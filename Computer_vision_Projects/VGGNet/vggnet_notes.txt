@@ -1,0 +1,11 @@
+Algorithm to define a model:
+    activate tensorboard
+    import all necessary libraries
+    define the model
+    define epochs, batch_size, num_classes
+    use two functions (image data generator, and flow from directory to create dataset)
+    use train generator to analyse the data generated
+    write lines of code to initialize tensorboard
+    model.fit
+    predict images
+    display those images with labels
