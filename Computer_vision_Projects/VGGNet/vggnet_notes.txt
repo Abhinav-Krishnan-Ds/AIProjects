@@ -9,3 +9,50 @@ Algorithm to define a model:
     model.fit
     predict images
     display those images with labels
+
+    # 1
+    data preprocessing:
+        define train images dir
+
+        ImageDataGenerator(
+            rescale=
+            rotation_range=
+            width_shift_range=
+            height_shift_range=
+            shear_range=
+            zoom_range=
+        )
+
+
+        .flow_from_directory(
+            directory
+            target_size=
+            shuffle=
+            seed=
+            color_mode=
+            batch_size=
+            class_mode=
+        )
+
+        .samples
+
+    # 2
+    initializing of tensorboard
+        at the starting of code:
+            %load_ext tensorboard
+        
+        after generating data to train
+            log_dir = "./logs/fit" + datetime.datetime.now().strftime("%d%M%Y-%H%M%S")
+            tensorboard_callbacks = tf.keras.callbacks.Tensorboard(log_dir=log_dir)
+            callbacks_list = [tensorboard_callbacks]
+
+    # 3
+    model.fit(
+        train_generator,
+        epochs,
+        steps_per_epochs,
+        validation_data,
+        valdation_data_steps,
+        callbacks,
+        verbose
+    )
