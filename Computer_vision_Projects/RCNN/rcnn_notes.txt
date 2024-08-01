@@ -27,3 +27,14 @@ Transfer learning
 
 if you are getting error: alexnet requires format (None, 224, 224, 3) but recieved (32, 224, 3):
 input to model.predict is : numpy.expand_dims(data, axis=0)
+
+
+
+
+
+Need to improve:
+    alexnet to vggnet
+    number of train images have to be increased
+    hyperparameters need to be adjusted
+    training images have to be passed through train_generator and shifted, rotated and shear
+    precision, recall, f1score, sensitivity, specificity have to be calculated
