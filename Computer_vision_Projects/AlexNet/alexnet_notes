@@ -1,0 +1,91 @@
+# if you need to use beautiful soup:
+
+# import cv2
+# import urllib
+# import requests
+# import PIL.Image
+
+# from bs4 import BeautifulSoup
+
+
+
+# #downloading ship synset
+# ship_page = requests.get("http://www.image-net.org/api/text/imagenet.synset.geturls?wnid=n03095699")
+# ship_soup = BeautifulSoup(ship_page.content, "html.parser")
+
+# #downloading bike synset:
+# bike_page = requests.get("http://www.image-net.org/api/text/imagenet.synset.geturls?wnid=n03792782")
+# bike_soup = BeautifulSoup(bike_page.content, "html.parser")
+
+# ship_soup_str = str(ship_soup)
+# ship_soup_split_url = ship_soup_str.split("\r\n")
+
+# bike_soup_str = str(bike_soup)
+# bike_soup_split_url = bike_soup_str.split("\r\n")
+
+
+# os.mkdir('./content')
+# os.mkdir('./content/train')
+# os.mkdir('./content/train/ships')
+# os.mkdir('./content/train/bikes')
+# os.mkdir('./content/validation')
+# os.mkdir('./content/validation/ships')
+# os.mkdir('./content/validation/bikes')
+
+
+# image_rows, image_cols = 32, 32
+
+# input_shape = (image_rows, image_cols, 3)
+
+# def url_to_image(url):
+#     resp = urllib.request.urlopen(url)
+#     image = np.asarray(bytearray(resp.read()), dtype="uint8")
+#     image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+#     return image
+
+# n_training_images = 100
+
+# #train images for ship
+# for progress in tqdm(range(n_training_images)):
+#     if not ship_soup_split_url[progress] == None:
+#         try:
+#             I = url_to_image(ship_soup_split_url[progress])
+#             if len(I.shape) == 3:
+#                 save_path = "./content/train/ships/img" + str(progress) + ".jpeg"
+#                 cv2.imwrite(save_path, I)
+#         except:
+#             None
+
+# #train images for bikes
+# for progress in tqdm(range(n_training_images)):
+#     if not bike_soup_split_url[progress] == None:
+#         try:
+#             I = url_to_image(bike_soup_split_url[progress])
+#             if len(I.shape) == 3:
+#                 save_path = "./content/train/bikes/img" + str(progress) + ".jpeg"
+#                 cv2.imwrite(save_path, I)
+#         except:
+#             None
+
+# #validation images for ships
+# for progress in tqdm(range(50)):
+#     if not ship_soup_split_url[n_training_images+progress] == None:
+#         try:
+#             I = url_to_image(ship_soup_split_url[n_training_images+progress])
+#             if len(I.shape) == 3:
+#                 save_path = "./content/validation/ships/img" + str(progress) + ".jpeg"
+#                 cv2.imwrite(save_path, I)
+#         except:
+#             None
+
+
+# #validation images for bikes
+# for progress in tqdm(range(50)):
+#     if not bike_soup_split_url[n_training_images+progress] == None:
+#         try:
+#             I = url_to_image(bike_soup_split_url[n_training_images+progress])
+#             if len(I.shape) == 3:
+#                 save_path = "./content/validation/bikes/img" + str(progress) + ".jpeg"
+#                 cv2.imwrite(save_path, I)
+#         except:
+#             None
