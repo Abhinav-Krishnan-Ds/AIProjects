@@ -73,6 +73,23 @@
     RMSE(Root Mean Square Error)
 
 
+First we create an image dataset from pixel values by reshaping into desired shape
+then we use pyplot.imshow() with cmap='grey' to show image
+
+
+The slicing [:, :, 0] in Python is used to select elements from a multi-dimensional array, typically a NumPy array or a TensorFlow tensor. This slicing is used when dealing with multi-channel images or tensors, where the last dimension represents different channels (e.g., RGB channels in an image).
+
+Let's break down what each part of [:, :, 0] does:
+
+The : symbol indicates that we want to select all elements along that axis.
+[:, :] indicates that we want to select all elements along the first two dimensions (commonly used for height and width in images).
+0 specifies that we want to select only the elements in the last dimension with index 0.
+So, [:, :, 0] selects all elements along the first two dimensions and only the elements from the last dimension with index 0.
+
+For example, if you have a 3D array representing an RGB image, [:, :, 0] would select all elements from the first channel (the red channel), leaving you with a 2D array representing the intensity of red at each pixel.
+
+
+
 - Need to understand each CNN architecture in detail.
 - https://medium.com/@learnwithwhiteboard_digest/8-tips-on-how-to-choose-neural-network-architecture-e50590e99ab1
 - https://superb-ai.com/en/resources/blog/how-to-select-better-convnet-architectures-for-image-classification-tasks
