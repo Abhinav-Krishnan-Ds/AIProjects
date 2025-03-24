@@ -1,0 +1,48 @@
+Types of EDA
+-> Number of Columns, rows
+-> Number of missing values in each column
+-> Pie chart of distribution of each unique value of each column
+-> Number classes in each column
+-> Word clouds can be used
+
+Steps for Topic modelling
+-> Tokenization
+-> Stopwords(remove too frequent and too infrequent words too)
+-> Stemming
+-> Vectorization
+
+-> NLTK word_tokenize() uses TreeBank Word tokenizer
+
+Stemming algorithms used in NLTK
+-> Porter stemming
+-> Lancaster stemming
+-> Snowball stemming
+
+->Stemming has a problem of trimming edges, leaves to leav.
+->Use Lemmatization instead. It performs based on a lemma or vocabulary.
+
+
+Latent Dirichelet Allocation
+-> Assigns weights to words according to topic
+
+method by which we can extend CountVectorizer with lemmatization
+lemm = WordNetLemmatizer()
+class LemmaCountVectorizer(CountVectorizer):
+    def build_analyzer(self):
+        analyzer = super(LemmaCountVectorizer, self).build_analyzer()
+        return lambda doc: (lemm.lemmatize(w) for w in analyzer(doc))
+
+-> 
+LatentDirichletAllocation(batch_size=128, doc_topic_prior=None,
+             evaluate_every=-1, learning_decay=0.7,
+             learning_method='online', learning_offset=50.0,
+             max_doc_update_iter=100, max_iter=5, mean_change_tol=0.001,
+             n_components=11, n_jobs=None, n_topics=None, perp_tol=0.1,
+             random_state=0, topic_word_prior=None,
+             total_samples=1000000.0, verbose=0)
+             
+
+
+
+
+

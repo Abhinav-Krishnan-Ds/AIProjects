@@ -1,0 +1,7 @@
+path: /home/abhinav/Desktop/AIProjects/General Projects/SLT/sign_recognition/yolo_data
+train: images/train
+val: images/train
+
+names:
+  0: Left_Hand
+  1: Right_Hand
