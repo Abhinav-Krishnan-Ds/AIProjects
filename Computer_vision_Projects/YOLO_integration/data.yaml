@@ -1,0 +1,9 @@
+path: /home/abhinav/Desktop/YOLO_integration/data
+train: images/train
+val: images/train
+
+names:
+  0: Bacillus
+  1: ECOLI
+  2: ENTERCOCUS
+  3: STPLYCHCOCCUS
